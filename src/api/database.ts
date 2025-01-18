@@ -20,15 +20,11 @@ export async function uploadFile(file: File): Promise<{ count: number }> {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await fetch('/api/parse', {
-    method: 'POST',
-    body: formData,
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'Failed to upload file' }));
-    throw new Error(errorData.message || 'Failed to upload file');
+  try {
+    const { handleFileUpload } = await import('./parse');
+    return await handleFileUpload(file);
+  } catch (error) {
+    console.error('Upload error:', error);
+    throw new Error('Failed to upload file');
   }
-
-  return response.json();
 }
