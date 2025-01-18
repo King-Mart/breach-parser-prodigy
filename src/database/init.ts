@@ -13,17 +13,9 @@ export const initializeDatabase = async () => {
     
     const schema = fs.readFileSync(schemaPath, 'utf8');
     
-    return new Promise((resolve, reject) => {
-      pool.query(schema, (error) => {
-        if (error) {
-          console.error('Failed to initialize database schema:', error);
-          reject(error);
-        } else {
-          console.log('Database schema initialized successfully');
-          resolve(true);
-        }
-      });
-    });
+    await pool.query(schema);
+    console.log('Database schema initialized successfully');
+    return true;
   } catch (error) {
     console.error('Database initialization error:', error);
     throw error;
@@ -31,17 +23,14 @@ export const initializeDatabase = async () => {
 };
 
 export const testConnection = async () => {
-  return new Promise((resolve, reject) => {
-    pool.query('SELECT 1', (err) => {
-      if (err) {
-        console.error('Database connection failed:', err);
-        reject(err);
-      } else {
-        console.log('Database connection successful');
-        resolve(true);
-      }
-    });
-  });
+  try {
+    await pool.query('SELECT 1');
+    console.log('Database connection successful');
+    return true;
+  } catch (error) {
+    console.error('Database connection failed:', error);
+    throw error;
+  }
 };
 
 export { pool };

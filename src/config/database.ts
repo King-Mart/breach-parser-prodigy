@@ -12,5 +12,5 @@ export const dbConfig = {
 };
 
 export const createPool = () => {
-  return mysql.createPool(dbConfig);
+  return mysql.createPool(dbConfig).promise();
 };

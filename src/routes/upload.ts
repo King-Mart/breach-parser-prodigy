@@ -1,62 +1,51 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs';
-import { exec } from 'child_process';
+import { spawn } from 'child_process';
 
 const router = express.Router();
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Configure multer for file uploads
-const upload = multer({ 
-  dest: uploadsDir,
-  limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit
+const storage = multer.diskStorage({
+  destination: './files',
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
   }
 });
 
-router.post('/parse', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
+const upload = multer({ storage });
 
-  const pythonScript = path.join(__dirname, '../../parser.py');
-  
-  // Verify python script exists
-  if (!fs.existsSync(pythonScript)) {
-    return res.status(500).json({ error: 'Parser script not found' });
-  }
+router.post('/parse', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
 
-  const command = `python ${pythonScript} ${req.file.path}`;
+    const pythonProcess = spawn('python3', ['parser.py', req.file.path]);
+    let result = '';
 
-  exec(command, (error, stdout, stderr) => {
-    // Clean up uploaded file
-    fs.unlink(req.file!.path, (err) => {
-      if (err) console.error('Error deleting uploaded file:', err);
+    pythonProcess.stdout.on('data', (data) => {
+      result += data.toString();
     });
 
-    if (error) {
-      console.error(`Error executing Python script: ${error}`);
-      return res.status(500).json({ error: 'Failed to process file' });
-    }
+    pythonProcess.stderr.on('data', (data) => {
+      console.error(`Python error: ${data}`);
+    });
 
-    if (stderr) {
-      console.error(`Python script stderr: ${stderr}`);
-    }
-
-    try {
-      const result = JSON.parse(stdout);
-      res.json(result);
-    } catch (e) {
-      console.error('Error parsing Python script output:', e);
-      res.status(500).json({ error: 'Failed to parse Python script output' });
-    }
-  });
+    pythonProcess.on('close', (code) => {
+      if (code !== 0) {
+        return res.status(500).json({ error: 'Failed to process file' });
+      }
+      try {
+        const parsedResult = JSON.parse(result);
+        res.json(parsedResult);
+      } catch (error) {
+        res.status(500).json({ error: 'Failed to parse Python output' });
+      }
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 export default router;
