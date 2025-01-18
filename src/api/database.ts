@@ -17,50 +17,18 @@ export async function uploadFile(file: File): Promise<{ count: number }> {
     throw new Error('No file provided');
   }
 
-  // First, get a pre-signed URL for file upload
-  const uploadUrlResponse = await fetch('/api/upload-url', {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch('/api/parse', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      fileName: file.name,
-      contentType: file.type,
-    }),
+    body: formData,
   });
 
-  if (!uploadUrlResponse.ok) {
-    throw new Error('Failed to get upload URL');
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ message: 'Failed to upload file' }));
+    throw new Error(errorData.message || 'Failed to upload file');
   }
 
-  const { uploadUrl, fileKey } = await uploadUrlResponse.json();
-
-  // Upload the file to the pre-signed URL
-  const uploadResponse = await fetch(uploadUrl, {
-    method: 'PUT',
-    body: file,
-    headers: {
-      'Content-Type': file.type,
-    },
-  });
-
-  if (!uploadResponse.ok) {
-    throw new Error('Failed to upload file');
-  }
-
-  // Trigger file processing
-  const processResponse = await fetch('/api/process', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ fileKey }),
-  });
-
-  if (!processResponse.ok) {
-    const errorData = await processResponse.json().catch(() => ({ message: 'Failed to process file' }));
-    throw new Error(errorData.message || 'Failed to process file');
-  }
-
-  return processResponse.json();
+  return response.json();
 }
