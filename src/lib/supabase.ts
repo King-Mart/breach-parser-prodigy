@@ -18,3 +18,8 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Helper function to check if Supabase is properly configured
+export const isSupabaseConfigured = () => {
+  return !(!supabaseUrl || supabaseUrl.includes('your-project-url'));
+};

@@ -1,9 +1,9 @@
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 export async function fetchDatabaseRows(): Promise<any[]> {
   try {
     // Check if Supabase is properly configured
-    if (!supabase.config.supabaseUrl || supabase.config.supabaseUrl.includes('your-project-url')) {
+    if (!isSupabaseConfigured()) {
       console.error('Supabase is not properly configured. Please set up your environment variables.');
       return [];
     }
@@ -31,7 +31,7 @@ export async function uploadFile(file: File): Promise<{ count: number }> {
   }
 
   // Check if Supabase is properly configured
-  if (!supabase.config.supabaseUrl || supabase.config.supabaseUrl.includes('your-project-url')) {
+  if (!isSupabaseConfigured()) {
     throw new Error('Supabase is not properly configured. Please set up your environment variables.');
   }
 
