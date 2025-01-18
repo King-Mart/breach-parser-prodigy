@@ -1,134 +1,17 @@
 import express from 'express';
 import cors from 'cors';
-import multer from 'multer';
-import { exec } from 'child_process';
-import path from 'path';
-import fs from 'fs';
-import mysql from 'mysql2';
+import { initializeDatabase, testConnection } from './src/database/init';
+import databaseRoutes from './src/routes/database';
+import uploadRoutes from './src/routes/upload';
 
 const app = express();
-
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Configure multer for file uploads
-const upload = multer({ 
-  dest: uploadsDir,
-  limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit
-  }
-});
 
 app.use(cors());
 app.use(express.json());
 
-// Handle file upload and parsing
-app.post('/api/parse', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-
-  const pythonScript = path.join(__dirname, 'parser.py');
-  
-  // Verify python script exists
-  if (!fs.existsSync(pythonScript)) {
-    return res.status(500).json({ error: 'Parser script not found' });
-  }
-
-  const command = `python ${pythonScript} ${req.file.path}`;
-
-  exec(command, (error, stdout, stderr) => {
-    // Clean up uploaded file
-    fs.unlink(req.file!.path, (err) => {
-      if (err) console.error('Error deleting uploaded file:', err);
-    });
-
-    if (error) {
-      console.error(`Error executing Python script: ${error}`);
-      return res.status(500).json({ error: 'Failed to process file' });
-    }
-
-    if (stderr) {
-      console.error(`Python script stderr: ${stderr}`);
-    }
-
-    try {
-      const result = JSON.parse(stdout);
-      res.json(result);
-    } catch (e) {
-      console.error('Error parsing Python script output:', e);
-      res.status(500).json({ error: 'Failed to parse Python script output' });
-    }
-  });
-});
-
-// Create database connection pool with retry mechanism
-const createPool = () => {
-  return mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'deepcode',
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-    multipleStatements: true
-  });
-};
-
-const pool = createPool();
-
-// Initialize database schema with better error handling
-const initializeDatabase = async () => {
-  try {
-    const schemaPath = path.join(__dirname, 'initialize_schema.sql');
-    if (!fs.existsSync(schemaPath)) {
-      throw new Error('Schema file not found');
-    }
-    
-    const schema = fs.readFileSync(schemaPath, 'utf8');
-    
-    return new Promise((resolve, reject) => {
-      pool.query(schema, (error) => {
-        if (error) {
-          console.error('Failed to initialize database schema:', error);
-          reject(error);
-        } else {
-          console.log('Database schema initialized successfully');
-          resolve(true);
-        }
-      });
-    });
-  } catch (error) {
-    console.error('Database initialization error:', error);
-    throw error;
-  }
-};
-
-// Handle database rows fetch with improved error handling
-app.get('/api/database/rows', (req, res) => {
-  const query = `
-    SELECT * FROM accounts 
-    ORDER BY id DESC 
-    LIMIT 100
-  `;
-
-  pool.query(query, (error: any, results: any) => {
-    if (error) {
-      console.error('Database query error:', error);
-      return res.status(500).json({ 
-        error: 'Database query failed', 
-        details: error.message,
-        code: error.code 
-      });
-    }
-    
-    res.json(results || []);
-  });
-});
+// Routes
+app.use('/api/database', databaseRoutes);
+app.use('/api', uploadRoutes);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -149,21 +32,10 @@ const startServer = async () => {
     await initializeDatabase();
     
     // Test database connection
-    await new Promise((resolve, reject) => {
-      pool.query('SELECT 1', (err) => {
-        if (err) {
-          console.error('Database connection failed:', err);
-          reject(err);
-        } else {
-          console.log('Database connection successful');
-          resolve(true);
-        }
-      });
-    });
+    await testConnection();
     
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
-      console.log(`Upload directory: ${uploadsDir}`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);
