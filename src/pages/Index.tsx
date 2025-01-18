@@ -41,8 +41,8 @@ export default function Index() {
           </p>
         </div>
         <img 
-          src="/your-logo.png" 
-          alt="Company Logo" 
+          src="/lovable-uploads/1abc1e8e-4752-421a-b217-232af70b0285.png" 
+          alt="TADA DATA Logo" 
           className="h-8 w-auto object-contain"
         />
       </div>
