@@ -14,10 +14,11 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.post('/parse', upload.single('file'), async (req, res) => {
+router.post('/parse', upload.single('file'), async (req: express.Request, res: express.Response): Promise<void> => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
+      res.status(400).json({ error: 'No file uploaded' });
+      return;
     }
 
     const pythonProcess = spawn('python3', ['parser.py', req.file.path]);
@@ -33,7 +34,8 @@ router.post('/parse', upload.single('file'), async (req, res) => {
 
     pythonProcess.on('close', (code) => {
       if (code !== 0) {
-        return res.status(500).json({ error: 'Failed to process file' });
+        res.status(500).json({ error: 'Failed to process file' });
+        return;
       }
       try {
         const parsedResult = JSON.parse(result);
