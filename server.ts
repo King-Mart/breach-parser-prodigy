@@ -65,37 +65,50 @@ app.post('/api/parse', upload.single('file'), (req, res) => {
   });
 });
 
-// Create database if it doesn't exist and then create a connection pool
-const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: 'root',
-  database: 'deepcode',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  multipleStatements: true // Allow multiple statements for initialization
-});
-
-// Initialize database schema
-const initializeDatabase = async () => {
-  const schemaPath = path.join(__dirname, 'initialize_schema.sql');
-  const schema = fs.readFileSync(schemaPath, 'utf8');
-  
-  return new Promise((resolve, reject) => {
-    pool.query(schema, (error) => {
-      if (error) {
-        console.error('Failed to initialize database schema:', error);
-        reject(error);
-      } else {
-        console.log('Database schema initialized successfully');
-        resolve(true);
-      }
-    });
+// Create database connection pool with retry mechanism
+const createPool = () => {
+  return mysql.createPool({
+    host: 'localhost',
+    user: 'root',
+    password: 'root',
+    database: 'deepcode',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    multipleStatements: true
   });
 };
 
-// Handle database rows fetch
+const pool = createPool();
+
+// Initialize database schema with better error handling
+const initializeDatabase = async () => {
+  try {
+    const schemaPath = path.join(__dirname, 'initialize_schema.sql');
+    if (!fs.existsSync(schemaPath)) {
+      throw new Error('Schema file not found');
+    }
+    
+    const schema = fs.readFileSync(schemaPath, 'utf8');
+    
+    return new Promise((resolve, reject) => {
+      pool.query(schema, (error) => {
+        if (error) {
+          console.error('Failed to initialize database schema:', error);
+          reject(error);
+        } else {
+          console.log('Database schema initialized successfully');
+          resolve(true);
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Database initialization error:', error);
+    throw error;
+  }
+};
+
+// Handle database rows fetch with improved error handling
 app.get('/api/database/rows', (req, res) => {
   const query = `
     SELECT * FROM accounts 
@@ -105,23 +118,32 @@ app.get('/api/database/rows', (req, res) => {
 
   pool.query(query, (error: any, results: any) => {
     if (error) {
-      console.error('Database error:', error);
-      return res.status(500).json({ error: 'Database query failed', details: error.message });
+      console.error('Database query error:', error);
+      return res.status(500).json({ 
+        error: 'Database query failed', 
+        details: error.message,
+        code: error.code 
+      });
     }
     
-    res.json(results);
+    res.json(results || []);
   });
 });
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Server error:', err);
-  res.status(500).json({ error: 'Internal server error' });
+  res.status(500).json({ 
+    error: 'Internal server error',
+    message: err.message,
+    code: err.code
+  });
 });
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, async () => {
+// Start server with enhanced error handling
+const startServer = async () => {
   try {
     // Initialize database schema
     await initializeDatabase();
@@ -139,10 +161,14 @@ app.listen(PORT, async () => {
       });
     });
     
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Upload directory: ${uploadsDir}`);
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      console.log(`Upload directory: ${uploadsDir}`);
+    });
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
   }
-});
+};
+
+startServer();
