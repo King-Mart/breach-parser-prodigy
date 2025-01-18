@@ -65,7 +65,7 @@ app.post('/api/parse', upload.single('file'), (req, res) => {
   });
 });
 
-// Create a connection pool instead of single connection
+// Create database if it doesn't exist and then create a connection pool
 const pool = mysql.createPool({
   host: 'localhost',
   user: 'root',
@@ -73,11 +73,12 @@ const pool = mysql.createPool({
   database: 'deepcode',
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
+  multipleStatements: true // Allow multiple statements for initialization
 });
 
 // Initialize database schema
-const initializeDatabase = () => {
+const initializeDatabase = async () => {
   const schemaPath = path.join(__dirname, 'initialize_schema.sql');
   const schema = fs.readFileSync(schemaPath, 'utf8');
   
