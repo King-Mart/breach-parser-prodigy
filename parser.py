@@ -12,6 +12,23 @@ import sql_updater
 # fileDirectory = "files" + "\\"
 #
 # toOperate = rootpath + fileDirectory + "sample.txt"
+def urlparse(line):
+    userPasswordPattern =r":[^:]+:[^:]+$"
+    line2 = re.sub(userPasswordPattern, "", line)
+    try:
+        username_password = re.search(userPasswordPattern, line)
+        user = ""
+        pas = ""
+        if username_password:
+            user = username_password.group(0)[1:].split(":")[0]
+            pas = username_password.group(0)[1:].split(":")[1]
+            adaObj = parse_url(line2)
+            adaObj["username"] = user
+            adaObj["password"] = pas
+            adaObj["application"] = ""
+        return adaObj
+    except ValueError:
+        return line
 def parse_data():
     toOperate = "./files/sample.txt"
     userPasswordPattern = r":[^:]+:[^:]+$"
