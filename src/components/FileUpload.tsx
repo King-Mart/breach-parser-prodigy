@@ -11,13 +11,27 @@ export function FileUpload() {
     if (!file) return;
 
     setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
     try {
-      // Here we would handle the file upload to a backend service
-      // For now, we'll just simulate success
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      toast.success("File uploaded successfully");
+      const response = await fetch('/api/parse', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to process file');
+      }
+
+      const result = await response.json();
+      toast.success(`Successfully processed ${result.count} entries`);
+      
+      // Trigger a refresh of the data table
+      window.location.reload();
     } catch (error) {
-      toast.error("Failed to upload file");
+      console.error('Upload error:', error);
+      toast.error("Failed to process file");
     } finally {
       setIsUploading(false);
     }
@@ -28,20 +42,20 @@ export function FileUpload() {
       <Upload className="h-10 w-10 text-muted-foreground" />
       <h3 className="text-lg font-semibold">Upload Breach Data</h3>
       <p className="text-sm text-muted-foreground">
-        Drag and drop your file here or click to browse
+        Upload a text file containing URLs to parse
       </p>
       <input
         type="file"
         id="file-upload"
         className="hidden"
         onChange={handleFileUpload}
-        accept=".txt,.csv,.json"
+        accept=".txt"
       />
       <Button
         disabled={isUploading}
         onClick={() => document.getElementById("file-upload")?.click()}
       >
-        {isUploading ? "Uploading..." : "Select File"}
+        {isUploading ? "Processing..." : "Select File"}
       </Button>
     </div>
   );
