@@ -6,20 +6,21 @@ import { DataTable } from "@/components/DataTable";
 const mockData = [
   {
     id: "1",
+    username: "admin",
     domain: "example.com",
-    ip: "192.168.1.1",
-    url: "https://example.com/login",
-    status: "active" as const,
-    tags: ["wordpress", "login-form"],
-  },
-  {
-    id: "2",
-    domain: "test.org",
-    ip: "10.0.0.1",
-    url: "https://test.org/admin",
-    status: "unresolved" as const,
-    tags: ["citrix", "captcha"],
-  },
+    ip_address: "192.168.1.1",
+    application: "WordPress",
+    port: 443,
+    url_path: "/wp-admin",
+    tags: ["wordpress", "admin-panel"],
+    url_title: "WordPress Admin",
+    login_form_detected: true,
+    captcha_required: false,
+    otp_required: true,
+    is_parked: false,
+    is_accessible: true,
+    breach_detected: false
+  }
 ];
 
 export default function Index() {

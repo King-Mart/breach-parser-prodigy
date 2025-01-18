@@ -10,11 +10,20 @@ import { StatusBadge } from "./StatusBadge";
 
 interface DataEntry {
   id: string;
+  username: string;
   domain: string;
-  ip?: string;
-  url: string;
-  status: "active" | "resolved" | "parked" | "unresolved";
+  ip_address?: string;
+  application?: string;
+  port?: number;
+  url_path?: string;
   tags: string[];
+  url_title?: string;
+  login_form_detected: boolean;
+  captcha_required: boolean;
+  otp_required: boolean;
+  is_parked: boolean;
+  is_accessible: boolean;
+  breach_detected?: boolean;
 }
 
 interface DataTableProps {
@@ -27,9 +36,10 @@ export function DataTable({ data }: DataTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead>Username</TableHead>
             <TableHead>Domain</TableHead>
             <TableHead>IP</TableHead>
-            <TableHead>URL</TableHead>
+            <TableHead>Application</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Tags</TableHead>
           </TableRow>
@@ -37,11 +47,22 @@ export function DataTable({ data }: DataTableProps) {
         <TableBody>
           {data.map((entry) => (
             <TableRow key={entry.id}>
+              <TableCell>{entry.username}</TableCell>
               <TableCell>{entry.domain}</TableCell>
-              <TableCell>{entry.ip || "N/A"}</TableCell>
-              <TableCell className="max-w-md truncate">{entry.url}</TableCell>
+              <TableCell>{entry.ip_address || "N/A"}</TableCell>
+              <TableCell>{entry.application || "Unknown"}</TableCell>
               <TableCell>
-                <StatusBadge status={entry.status} />
+                <StatusBadge 
+                  status={
+                    entry.is_parked 
+                      ? "parked" 
+                      : !entry.is_accessible 
+                      ? "unresolved"
+                      : entry.breach_detected 
+                      ? "resolved" 
+                      : "active"
+                  } 
+                />
               </TableCell>
               <TableCell>
                 <div className="flex gap-1 flex-wrap">
