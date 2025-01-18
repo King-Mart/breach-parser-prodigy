@@ -17,9 +17,6 @@ export async function uploadFile(file: File): Promise<{ count: number }> {
     throw new Error('No file provided');
   }
 
-  const formData = new FormData();
-  formData.append('file', file);
-
   try {
     const { handleFileUpload } = await import('./parse');
     return await handleFileUpload(file);

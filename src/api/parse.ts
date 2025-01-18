@@ -1,27 +1,19 @@
-import { parse_data } from '../../parser.py';
-import { insert_data_in_batches } from '../../sql_updater.py';
-
 export async function handleFileUpload(file: File) {
   try {
-    // Save the uploaded file temporarily
-    const tempFilePath = `/tmp/${file.name}`;
-    await Bun.write(tempFilePath, file);
+    const formData = new FormData();
+    formData.append('file', file);
 
-    // Parse the file using the Python script
-    const result = await parse_data(tempFilePath);
+    const response = await fetch('/api/parse', {
+      method: 'POST',
+      body: formData,
+    });
 
-    // Update database with parsed results
-    const db_config = {
-      host: "localhost",
-      username: "root",
-      password: "root",
-      database: "deepcode",
-    };
-    
-    const table_name = "parsed_urls";
-    await insert_data_in_batches(result, db_config, table_name);
+    if (!response.ok) {
+      throw new Error('Failed to process file');
+    }
 
-    return { count: result.length };
+    const data = await response.json();
+    return { count: data.count || 0 };
   } catch (error) {
     console.error('Error processing file:', error);
     throw new Error('Failed to process file');
