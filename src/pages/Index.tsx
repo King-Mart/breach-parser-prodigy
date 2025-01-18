@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FileUpload } from "@/components/FileUpload";
 import { SearchBar } from "@/components/SearchBar";
 import { DataTable } from "@/components/DataTable";
+import { UrlAnalyzer } from "@/components/UrlAnalyzer";
 
 const mockData = [
   {
@@ -47,6 +48,8 @@ export default function Index() {
           className="h-8 w-auto object-contain"
         />
       </div>
+
+      <UrlAnalyzer />
 
       <div className="grid gap-8 md:grid-cols-2">
         <FileUpload />
