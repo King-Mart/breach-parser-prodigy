@@ -33,11 +33,18 @@ export default function Index() {
 
   return (
     <div className="container py-8 space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Breach Data Analyzer</h1>
-        <p className="text-muted-foreground">
-          Upload, analyze, and search through breach data securely.
-        </p>
+      <div className="flex items-center justify-between">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Breach Data Analyzer</h1>
+          <p className="text-muted-foreground">
+            Upload, analyze, and search through breach data securely.
+          </p>
+        </div>
+        <img 
+          src="/your-logo.png" 
+          alt="Company Logo" 
+          className="h-12 w-auto"
+        />
       </div>
 
       <div className="grid gap-8 md:grid-cols-2">
