@@ -2,6 +2,12 @@ import { supabase } from '@/lib/supabase';
 
 export async function fetchDatabaseRows(): Promise<any[]> {
   try {
+    // Check if Supabase is properly configured
+    if (!supabase.config.supabaseUrl || supabase.config.supabaseUrl.includes('your-project-url')) {
+      console.error('Supabase is not properly configured. Please set up your environment variables.');
+      return [];
+    }
+
     const { data, error } = await supabase
       .from('accounts')
       .select('*')
@@ -22,6 +28,11 @@ export async function fetchDatabaseRows(): Promise<any[]> {
 export async function uploadFile(file: File): Promise<{ count: number }> {
   if (!file) {
     throw new Error('No file provided');
+  }
+
+  // Check if Supabase is properly configured
+  if (!supabase.config.supabaseUrl || supabase.config.supabaseUrl.includes('your-project-url')) {
+    throw new Error('Supabase is not properly configured. Please set up your environment variables.');
   }
 
   try {

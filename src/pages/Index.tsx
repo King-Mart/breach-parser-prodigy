@@ -6,6 +6,8 @@ import { UrlAnalyzer } from "@/components/UrlAnalyzer";
 import { fetchDatabaseRows } from "@/api/database";
 import { useToast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { supabase } from "@/lib/supabase";
 
 export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -15,6 +17,8 @@ export default function Index() {
     queryKey: ['accounts'],
     queryFn: fetchDatabaseRows,
   });
+
+  const isSupabaseConfigured = !supabase.config.supabaseUrl.includes('your-project-url');
 
   useEffect(() => {
     if (error) {
@@ -45,6 +49,14 @@ export default function Index() {
           className="h-8 w-auto object-contain"
         />
       </div>
+
+      {!isSupabaseConfigured && (
+        <Alert variant="destructive">
+          <AlertDescription>
+            Supabase is not properly configured. Please set up your environment variables with valid Supabase credentials.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <UrlAnalyzer />
 
