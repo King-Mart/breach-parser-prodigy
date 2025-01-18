@@ -16,6 +16,13 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Create database if not exists
+--
+
+CREATE DATABASE IF NOT EXISTS deepcode;
+USE deepcode;
+
+--
 -- Table structure for table `parsed_urls`
 --
 
@@ -37,10 +44,33 @@ CREATE TABLE `parsed_urls` (
   `application` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `href` (`href`(255))
-) ENGINE=InnoDB AUTO_INCREMENT=728155 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+--
+-- Table structure for table `accounts`
+--
+
+DROP TABLE IF EXISTS `accounts`;
+CREATE TABLE `accounts` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `username` VARCHAR(255),
+    `domain` VARCHAR(255),
+    `ip_address` VARCHAR(45),
+    `application` VARCHAR(255),
+    `port` INT,
+    `url_path` VARCHAR(255),
+    `password_hash` VARCHAR(255),
+    `tags` JSON DEFAULT NULL,
+    `url_title` VARCHAR(255) DEFAULT NULL,
+    `login_form_detected` BOOLEAN DEFAULT FALSE,
+    `captcha_required` BOOLEAN DEFAULT FALSE,
+    `otp_required` BOOLEAN DEFAULT FALSE,
+    `is_parked` BOOLEAN DEFAULT NULL,
+    `is_accessible` BOOLEAN DEFAULT NULL,
+    `breach_detected` BOOLEAN DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
@@ -48,5 +78,3 @@ CREATE TABLE `parsed_urls` (
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2025-01-18 15:25:45
