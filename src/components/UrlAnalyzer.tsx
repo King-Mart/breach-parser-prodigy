@@ -3,9 +3,25 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Play } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { Card } from "@/components/ui/card";
+
+interface ParsedUrl {
+  href?: string;
+  username?: string;
+  password?: string;
+  protocol?: string;
+  host?: string;
+  port?: string;
+  hostname?: string;
+  pathname?: string;
+  search?: string;
+  hash?: string;
+  application?: string;
+}
 
 export function UrlAnalyzer() {
   const [url, setUrl] = useState("");
+  const [parsedUrl, setParsedUrl] = useState<ParsedUrl | null>(null);
   const { toast } = useToast();
 
   const handleAnalyze = async () => {
@@ -30,6 +46,9 @@ export function UrlAnalyzer() {
       if (!response.ok) {
         throw new Error("Failed to analyze URL");
       }
+
+      const data = await response.json();
+      setParsedUrl(data);
 
       toast({
         title: "Success",
@@ -60,6 +79,22 @@ export function UrlAnalyzer() {
           Analyze
         </Button>
       </div>
+
+      {parsedUrl && (
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Parsed URL Details</h3>
+          <div className="grid grid-cols-2 gap-4">
+            {Object.entries(parsedUrl).map(([key, value]) => (
+              <div key={key} className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground capitalize">
+                  {key.replace(/_/g, ' ')}
+                </p>
+                <p className="text-sm">{value || '-'}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
     </div>
   );
 }

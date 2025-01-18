@@ -2,16 +2,9 @@ import re
 from ada_url import parse_url
 import time
 import sql_updater
+import sys
+import json
 
-
-# get all files in the files directory and print them nicely
-
-
-# rootpath = os.getcwd() + "\\"
-#
-# fileDirectory = "files" + "\\"
-#
-# toOperate = rootpath + fileDirectory + "sample.txt"
 def urlparse(line):
     userPasswordPattern =r":[^:]+:[^:]+$"
     line2 = re.sub(userPasswordPattern, "", line)
@@ -29,20 +22,16 @@ def urlparse(line):
         return adaObj
     except ValueError:
         return "Line could not be parsed"
+
 def parse_data():
     toOperate = "./files/sample.txt"
     userPasswordPattern = r":[^:]+:[^:]+$"
     adaList = []
    
-
     print(parse_url("https://cst-proxy-02.isqft.com8080"))
     start = time.time()
     with open(toOperate, encoding="utf-8", errors="ignore") as f:
         linenum = 1
-        # for line in f:
-        #     if line.__len__() > 0:
-        #         resultList.append(str(urlparse(line)))
-        # print("{:.2f} seconds for urllib".format(time.time() - start))
 
         for line in f:
             line2 = re.sub(userPasswordPattern, "", line)
@@ -64,9 +53,15 @@ def parse_data():
 
     print(adaList[1])
     print("{:.2f} seconds for ada_url".format(time.time() - start))
-    # print(parsed_data[110:120])
     return adaList 
 
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        url = sys.argv[1]
+        result = urlparse(url)
+        print(json.dumps(result))
+    else:
+        parse_data()
 
 db_config = {
     "host": "localhost",
@@ -75,21 +70,5 @@ db_config = {
     "database": "deepcode",
 }
 table_name = "parsed_urls"
-
-# data = [
-#     {
-#         "href": "https://user:pass@example.org:80/api?q=1#2",
-#         "username": "user",
-#         "password": "pass",
-#         "protocol": "https:",
-#         "host": "example.org:80",
-#         "port": "80",
-#         "hostname": "example.org",
-#         "pathname": "/api",
-#         "search": "?q=1",
-#         "hash": "#2",
-#     }
-# ]
-
 
 sql_updater.insert_data_in_batches(parse_data(), db_config, table_name)
