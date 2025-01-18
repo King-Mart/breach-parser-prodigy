@@ -76,6 +76,24 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
+// Initialize database schema
+const initializeDatabase = () => {
+  const schemaPath = path.join(__dirname, 'initialize_schema.sql');
+  const schema = fs.readFileSync(schemaPath, 'utf8');
+  
+  return new Promise((resolve, reject) => {
+    pool.query(schema, (error) => {
+      if (error) {
+        console.error('Failed to initialize database schema:', error);
+        reject(error);
+      } else {
+        console.log('Database schema initialized successfully');
+        resolve(true);
+      }
+    });
+  });
+};
+
 // Handle database rows fetch
 app.get('/api/database/rows', (req, res) => {
   const query = `
@@ -102,17 +120,28 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
-  // Test database connection on startup
-  pool.query('SELECT 1', (err) => {
-    if (err) {
-      console.error('Database connection failed:', err);
-      process.exit(1);
-    } else {
-      console.log('Database connection successful');
-    }
-  });
-  
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Upload directory: ${uploadsDir}`);
+app.listen(PORT, async () => {
+  try {
+    // Initialize database schema
+    await initializeDatabase();
+    
+    // Test database connection
+    await new Promise((resolve, reject) => {
+      pool.query('SELECT 1', (err) => {
+        if (err) {
+          console.error('Database connection failed:', err);
+          reject(err);
+        } else {
+          console.log('Database connection successful');
+          resolve(true);
+        }
+      });
+    });
+    
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Upload directory: ${uploadsDir}`);
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
 });
