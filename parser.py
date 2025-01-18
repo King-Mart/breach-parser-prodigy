@@ -28,13 +28,12 @@ def urlparse(line):
             adaObj["application"] = ""
         return adaObj
     except ValueError:
-        return line
+        return "Line could not be parsed"
 def parse_data():
     toOperate = "./files/sample.txt"
     userPasswordPattern = r":[^:]+:[^:]+$"
-    resultList = []
     adaList = []
-    errorList = []
+   
 
     print(parse_url("https://cst-proxy-02.isqft.com8080"))
     start = time.time()
@@ -61,52 +60,12 @@ def parse_data():
                         adaObj["application"] = ""
                     adaList.append(adaObj)
                 except ValueError:
-                    errorList.append(line)
-                linenum += 1
+                    pass
 
-    # print(errorList)
-    print(len(errorList))
-    # with open(rootpath + "files/oddOnes.txt", encoding="utf-8", mode="w") as f:
-    # Define regex patterns for domain, application, and port extraction
-    domain_pattern = r"(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9.-]+\.[a-zA-Z]{2,6})"
-    application_pattern = r"@([a-zA-Z0-9._-]+(?:\.[a-zA-Z0-9._-]+)+)\/"
-    port_pattern = r":(\d{2,5})"
-
-    # Prepare a list to collect parsed data
-    parsed_data = []
-    for item in errorList:
-        # Process each entry
-        domain_match = re.search(domain_pattern, item)
-        application_match = re.search(application_pattern, item)
-        port_match = re.search(port_pattern, item)
-        username_password = re.search(userPasswordPattern, item)
-        user = ""
-        pas = ""
-        if username_password:
-            user = username_password.group(0)[1:].split(":")[0]
-            pas = username_password.group(0)[1:-1].split(":")[1]
-
-        parsed_data.append(
-            {
-                "href": item.strip(),
-                "host": domain_match.group(1) if domain_match else None,
-                "hostname": domain_match.group(1) if domain_match else None,
-                "application": application_match.group(1)
-                if application_match
-                else None,
-                "port": port_match.group(1) if port_match else None,
-                "username": user,
-                "password": pas,
-                "protocol": "",
-                "pathname": "",
-                "search": "",
-                "hash": "",
-            }
-        )
     print(adaList[1])
     print("{:.2f} seconds for ada_url".format(time.time() - start))
     # print(parsed_data[110:120])
-    return adaList + parsed_data
+    return adaList 
 
 
 db_config = {
