@@ -65,6 +65,17 @@ app.post('/api/parse', upload.single('file'), (req, res) => {
   });
 });
 
+// Create a connection pool instead of single connection
+const pool = mysql.createPool({
+  host: 'localhost',
+  user: 'root',
+  password: 'root',
+  database: 'deepcode',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
+
 // Handle database rows fetch
 app.get('/api/database/rows', (req, res) => {
   const query = `
@@ -73,21 +84,10 @@ app.get('/api/database/rows', (req, res) => {
     LIMIT 100
   `;
 
-  const dbConfig = {
-    host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'deepcode'
-  };
-
-  const connection = mysql.createConnection(dbConfig);
-
-  connection.query(query, (error: any, results: any) => {
-    connection.end();
-    
+  pool.query(query, (error: any, results: any) => {
     if (error) {
       console.error('Database error:', error);
-      return res.status(500).json({ error: 'Database query failed' });
+      return res.status(500).json({ error: 'Database query failed', details: error.message });
     }
     
     res.json(results);
@@ -103,6 +103,16 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
+  // Test database connection on startup
+  pool.query('SELECT 1', (err) => {
+    if (err) {
+      console.error('Database connection failed:', err);
+      process.exit(1);
+    } else {
+      console.log('Database connection successful');
+    }
+  });
+  
   console.log(`Server running on port ${PORT}`);
   console.log(`Upload directory: ${uploadsDir}`);
 });
