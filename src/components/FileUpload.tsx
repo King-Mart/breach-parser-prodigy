@@ -1,55 +1,83 @@
 import { useState } from "react";
-import { Upload } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { Progress } from "@/components/ui/progress";
+import { uploadFile } from "@/api/database";
 
 export function FileUpload() {
   const [isUploading, setIsUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      toast.error("File is too large. Maximum size is 10MB");
+      return;
+    }
+
     setIsUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
+    setProgress(0);
 
     try {
-      const response = await fetch('/api/parse', {
-        method: 'POST',
-        body: formData,
-      });
+      // Simulate progress while processing
+      const progressInterval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(progressInterval);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 500);
 
-      if (!response.ok) {
-        throw new Error('Failed to process file');
-      }
-
-      const result = await response.json();
+      const result = await uploadFile(file);
+      
+      clearInterval(progressInterval);
+      setProgress(100);
+      
       toast.success(`Successfully processed ${result.count} entries`);
       
       // Trigger a refresh of the data table
       window.location.reload();
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error("Failed to process file");
+      toast.error(error instanceof Error ? error.message : "Failed to process file");
     } finally {
       setIsUploading(false);
+      // Reset progress after a delay
+      setTimeout(() => setProgress(0), 1000);
     }
   };
 
   return (
     <div className="flex flex-col items-center gap-4 p-8 border-2 border-dashed rounded-lg">
-      <Upload className="h-10 w-10 text-muted-foreground" />
+      {isUploading ? (
+        <Loader2 className="h-10 w-10 text-muted-foreground animate-spin" />
+      ) : (
+        <Upload className="h-10 w-10 text-muted-foreground" />
+      )}
       <h3 className="text-lg font-semibold">Upload Breach Data</h3>
       <p className="text-sm text-muted-foreground">
-        Upload a text file containing URLs to parse
+        Upload a text file containing URLs to parse (max 10MB)
       </p>
+      {progress > 0 && (
+        <div className="w-full max-w-xs space-y-2">
+          <Progress value={progress} className="w-full" />
+          <p className="text-sm text-muted-foreground text-center">
+            {progress === 100 ? 'Processing complete!' : 'Processing file...'}
+          </p>
+        </div>
+      )}
       <input
         type="file"
         id="file-upload"
         className="hidden"
         onChange={handleFileUpload}
         accept=".txt"
+        disabled={isUploading}
       />
       <Button
         disabled={isUploading}

@@ -13,6 +13,10 @@ export async function fetchDatabaseRows(): Promise<any[]> {
 }
 
 export async function uploadFile(file: File): Promise<{ count: number }> {
+  if (!file) {
+    throw new Error('No file provided');
+  }
+
   const formData = new FormData();
   formData.append('file', file);
 
@@ -22,7 +26,8 @@ export async function uploadFile(file: File): Promise<{ count: number }> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to upload file');
+    const errorData = await response.json().catch(() => ({ message: 'Failed to upload file' }));
+    throw new Error(errorData.message || 'Failed to process file');
   }
 
   return response.json();
