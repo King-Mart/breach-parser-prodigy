@@ -1,36 +1,46 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FileUpload } from "@/components/FileUpload";
 import { SearchBar } from "@/components/SearchBar";
 import { DataTable } from "@/components/DataTable";
 import { UrlAnalyzer } from "@/components/UrlAnalyzer";
-
-const mockData = [
-  {
-    id: "1",
-    username: "admin",
-    domain: "example.com",
-    ip_address: "192.168.1.1",
-    application: "WordPress",
-    port: 443,
-    url_path: "/wp-admin",
-    tags: ["wordpress", "admin-panel"],
-    url_title: "WordPress Admin",
-    login_form_detected: true,
-    captcha_required: false,
-    otp_required: true,
-    is_parked: false,
-    is_accessible: true,
-    breach_detected: false
-  }
-];
+import { fetchDatabaseRow } from "@/api/database";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [data] = useState(mockData);
+  const [data, setData] = useState<any[]>([]);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const loadData = async () => {
+      const row = await fetchDatabaseRow();
+      if (row) {
+        setData([{
+          id: row.id || "1",
+          username: row.username || "sample_user",
+          domain: row.domain || row.hostname || "example.com",
+          ip_address: row.ip_address || "192.168.1.1",
+          application: row.application || "Unknown",
+          tags: ["sample"],
+          login_form_detected: row.login_form_detected || false,
+          captcha_required: row.captcha_required || false,
+          otp_required: row.otp_required || false,
+          is_parked: row.is_parked || false,
+          is_accessible: row.is_accessible || true,
+          breach_detected: row.breach_detected || false
+        }]);
+        toast({
+          title: "Data Loaded",
+          description: "Successfully fetched database row",
+        });
+      }
+    };
+
+    loadData();
+  }, []);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    // Here we would implement the actual search logic
   };
 
   return (
