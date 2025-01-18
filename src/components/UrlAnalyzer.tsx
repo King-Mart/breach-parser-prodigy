@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Play } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Card } from "@/components/ui/card";
+import { analyzeUrl } from "@/api/analyze";
 
 interface ParsedUrl {
   href?: string;
@@ -35,19 +36,7 @@ export function UrlAnalyzer() {
     }
 
     try {
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to analyze URL");
-      }
-
-      const data = await response.json();
+      const data = await analyzeUrl(url);
       setParsedUrl(data);
 
       toast({
