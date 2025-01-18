@@ -1,15 +1,17 @@
 import express from 'express';
 import multer from 'multer';
-import path from 'path';
 import { spawn } from 'child_process';
+import path from 'path';
 
 const router = express.Router();
 
 const storage = multer.diskStorage({
-  destination: './files',
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
   filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  }
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
 });
 
 const upload = multer({ storage });
@@ -21,15 +23,15 @@ router.post('/parse', upload.single('file'), async (req: express.Request, res: e
       return;
     }
 
-    const pythonProcess = spawn('python3', ['parser.py', req.file.path]);
     let result = '';
+    const pythonProcess = spawn('python3', ['parser.py', req.file.path]);
 
     pythonProcess.stdout.on('data', (data) => {
       result += data.toString();
     });
 
     pythonProcess.stderr.on('data', (data) => {
-      console.error(`Python error: ${data}`);
+      console.error(`Python script error: ${data}`);
     });
 
     pythonProcess.on('close', (code) => {
@@ -39,9 +41,9 @@ router.post('/parse', upload.single('file'), async (req: express.Request, res: e
       }
       try {
         const parsedResult = JSON.parse(result);
-        res.json(parsedResult);
+        res.json({ count: parsedResult.length || 0 });
       } catch (error) {
-        res.status(500).json({ error: 'Failed to parse Python output' });
+        res.status(500).json({ error: 'Failed to parse result' });
       }
     });
   } catch (error) {
