@@ -3,7 +3,7 @@ import { FileUpload } from "@/components/FileUpload";
 import { SearchBar } from "@/components/SearchBar";
 import { DataTable } from "@/components/DataTable";
 import { UrlAnalyzer } from "@/components/UrlAnalyzer";
-import { fetchDatabaseRow } from "@/api/database";
+import { fetchDatabaseRows } from "@/api/database";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function Index() {
@@ -13,25 +13,26 @@ export default function Index() {
 
   useEffect(() => {
     const loadData = async () => {
-      const row = await fetchDatabaseRow();
-      if (row) {
-        setData([{
-          id: row.id || "1",
-          username: row.username || "sample_user",
+      const rows = await fetchDatabaseRows();
+      if (rows && rows.length > 0) {
+        const formattedData = rows.map(row => ({
+          id: row.id || String(Math.random()),
+          username: row.username || "unknown",
           domain: row.domain || row.hostname || "example.com",
-          ip_address: row.ip_address || "192.168.1.1",
+          ip_address: row.ip_address || "N/A",
           application: row.application || "Unknown",
-          tags: ["sample"],
+          tags: row.tags ? JSON.parse(row.tags) : ["untagged"],
           login_form_detected: row.login_form_detected || false,
           captcha_required: row.captcha_required || false,
           otp_required: row.otp_required || false,
           is_parked: row.is_parked || false,
           is_accessible: row.is_accessible || true,
           breach_detected: row.breach_detected || false
-        }]);
+        }));
+        setData(formattedData);
         toast({
           title: "Data Loaded",
-          description: "Successfully fetched database row",
+          description: `Successfully fetched ${formattedData.length} rows from database`,
         });
       }
     };
