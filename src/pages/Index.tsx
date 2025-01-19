@@ -34,12 +34,12 @@ export default function Index() {
   };
 
   return (
-    <div className="container py-8 space-y-8 bg-gradient-to-b from-blue-50 to-white">
+    <div className="container py-8 space-y-8 bg-background bg-[url('/airplane-pattern.png')] bg-repeat">
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Plane className="h-8 w-8 text-blue-500 animate-bounce" />
-            <h1 className="text-3xl font-bold tracking-tight text-blue-900">Breach Data Analyzer</h1>
+            <Plane className="h-8 w-8 text-primary animate-bounce" />
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">Breach Data Analyzer</h1>
           </div>
           <p className="text-muted-foreground">
             Soar through breach data securely with our aviation-grade analysis tools.
@@ -51,7 +51,7 @@ export default function Index() {
             alt="TADA DATA Logo" 
             className="h-8 w-auto object-contain"
           />
-          <Plane className="h-6 w-6 text-blue-400 transform rotate-45" />
+          <Plane className="h-6 w-6 text-primary/80 floating-plane" />
         </div>
       </div>
 
@@ -63,17 +63,17 @@ export default function Index() {
         </Alert>
       )}
 
-      <div className="p-6 bg-white rounded-lg shadow-lg border border-blue-100">
+      <div className="p-6 bg-card rounded-lg shadow-lg border border-border">
         <UrlAnalyzer />
       </div>
 
       <div className="grid gap-8 md:grid-cols-2">
-        <div className="p-6 bg-white rounded-lg shadow-lg border border-blue-100">
+        <div className="p-6 bg-card rounded-lg shadow-lg border border-border">
           <FileUpload />
         </div>
-        <div className="p-6 bg-white rounded-lg shadow-lg border border-blue-100 space-y-4">
-          <h2 className="text-xl font-semibold text-blue-900 flex items-center gap-2">
-            <Plane className="h-5 w-5 text-blue-500" />
+        <div className="p-6 bg-card rounded-lg shadow-lg border border-border space-y-4">
+          <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
+            <Plane className="h-5 w-5 text-primary" />
             Quick Search
           </h2>
           <SearchBar onSearch={handleSearch} />
@@ -81,14 +81,14 @@ export default function Index() {
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-blue-900 flex items-center gap-2">
-          <Plane className="h-5 w-5 text-blue-500" />
+        <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
+          <Plane className="h-5 w-5 text-primary" />
           Flight Data Overview
         </h2>
-        <div className="bg-white rounded-lg shadow-lg border border-blue-100 overflow-hidden">
+        <div className="bg-card rounded-lg shadow-lg border border-border overflow-hidden">
           {isLoading ? (
             <div className="flex items-center justify-center p-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
             </div>
           ) : (
             <DataTable data={data} />
