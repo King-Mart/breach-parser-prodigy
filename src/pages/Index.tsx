@@ -34,7 +34,7 @@ export default function Index() {
   };
 
   return (
-    <div className="container py-8 space-y-8 bg-background bg-[url('/airplane-pattern.png')] bg-repeat">
+    <div className="container py-8 space-y-8 bg-background bg-[url('/airplane-pattern.png')] bg-repeat bg-opacity-20">
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
@@ -42,7 +42,7 @@ export default function Index() {
             <h1 className="text-3xl font-bold tracking-tight text-foreground">Breach Data Analyzer</h1>
           </div>
           <p className="text-muted-foreground">
-            Soar through breach data securely with our aviation-grade analysis tools.
+            Navigate through breach data securely with our advanced analysis tools.
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -58,7 +58,7 @@ export default function Index() {
       {!isSupabaseConfigured() && (
         <Alert variant="destructive">
           <AlertDescription>
-            The flight deck is not properly configured. Please set up your environment variables with valid Supabase credentials.
+            Database connection not properly configured. Please set up your environment variables with valid Supabase credentials.
           </AlertDescription>
         </Alert>
       )}
@@ -83,7 +83,7 @@ export default function Index() {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
           <Plane className="h-5 w-5 text-primary" />
-          Flight Data Overview
+          Breached Data Overview
         </h2>
         <div className="bg-card rounded-lg shadow-lg border border-border overflow-hidden">
           {isLoading ? (
