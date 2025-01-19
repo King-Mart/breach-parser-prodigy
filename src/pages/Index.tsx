@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { isSupabaseConfigured } from "@/lib/supabase";
+import { Plane } from "lucide-react";
 
 export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,48 +34,66 @@ export default function Index() {
   };
 
   return (
-    <div className="container py-8 space-y-8">
+    <div className="container py-8 space-y-8 bg-gradient-to-b from-blue-50 to-white">
       <div className="flex items-center justify-between">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Breach Data Analyzer</h1>
+          <div className="flex items-center gap-2">
+            <Plane className="h-8 w-8 text-blue-500 animate-bounce" />
+            <h1 className="text-3xl font-bold tracking-tight text-blue-900">Breach Data Analyzer</h1>
+          </div>
           <p className="text-muted-foreground">
-            Upload, analyze, and search through breach data securely.
+            Soar through breach data securely with our aviation-grade analysis tools.
           </p>
         </div>
-        <img 
-          src="/lovable-uploads/1abc1e8e-4752-421a-b217-232af70b0285.png" 
-          alt="TADA DATA Logo" 
-          className="h-8 w-auto object-contain"
-        />
+        <div className="flex items-center gap-4">
+          <img 
+            src="/lovable-uploads/1abc1e8e-4752-421a-b217-232af70b0285.png" 
+            alt="TADA DATA Logo" 
+            className="h-8 w-auto object-contain"
+          />
+          <Plane className="h-6 w-6 text-blue-400 transform rotate-45" />
+        </div>
       </div>
 
       {!isSupabaseConfigured() && (
         <Alert variant="destructive">
           <AlertDescription>
-            Supabase is not properly configured. Please set up your environment variables with valid Supabase credentials.
+            The flight deck is not properly configured. Please set up your environment variables with valid Supabase credentials.
           </AlertDescription>
         </Alert>
       )}
 
-      <UrlAnalyzer />
+      <div className="p-6 bg-white rounded-lg shadow-lg border border-blue-100">
+        <UrlAnalyzer />
+      </div>
 
       <div className="grid gap-8 md:grid-cols-2">
-        <FileUpload />
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">Quick Search</h2>
+        <div className="p-6 bg-white rounded-lg shadow-lg border border-blue-100">
+          <FileUpload />
+        </div>
+        <div className="p-6 bg-white rounded-lg shadow-lg border border-blue-100 space-y-4">
+          <h2 className="text-xl font-semibold text-blue-900 flex items-center gap-2">
+            <Plane className="h-5 w-5 text-blue-500" />
+            Quick Search
+          </h2>
           <SearchBar onSearch={handleSearch} />
         </div>
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Data Overview</h2>
-        {isLoading ? (
-          <div className="flex items-center justify-center p-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
-          </div>
-        ) : (
-          <DataTable data={data} />
-        )}
+        <h2 className="text-xl font-semibold text-blue-900 flex items-center gap-2">
+          <Plane className="h-5 w-5 text-blue-500" />
+          Flight Data Overview
+        </h2>
+        <div className="bg-white rounded-lg shadow-lg border border-blue-100 overflow-hidden">
+          {isLoading ? (
+            <div className="flex items-center justify-center p-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+            </div>
+          ) : (
+            <DataTable data={data} />
+          )}
+        </div>
       </div>
     </div>
   );
