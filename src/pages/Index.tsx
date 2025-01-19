@@ -579,10 +579,19 @@ export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
 
-  const { data = sampleData, isLoading, error } = useQuery({
+  // Transform the sample data to match the DataTable interface
+  const transformedSampleData = sampleData.map(entry => ({
+    ...entry,
+    tags: entry.tags || [],
+    is_accessible: true,
+    is_parked: false,
+    breach_detected: true
+  }));
+
+  const { data = transformedSampleData, isLoading, error } = useQuery({
     queryKey: ['accounts'],
     queryFn: fetchDatabaseRows,
-    initialData: sampleData,
+    initialData: transformedSampleData,
   });
 
   useEffect(() => {

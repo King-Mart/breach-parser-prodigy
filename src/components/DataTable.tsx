@@ -7,22 +7,17 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { StatusBadge } from "./StatusBadge";
+import { ExternalLink } from "lucide-react";
 
 interface DataEntry {
   id: string;
   username: string;
   domain: string;
-  ip_address?: string;
+  url_path: string;
   application?: string;
-  port?: number;
-  url_path?: string;
   tags: string[];
-  url_title?: string;
-  login_form_detected: boolean;
-  captcha_required: boolean;
-  otp_required: boolean;
-  is_parked: boolean;
   is_accessible: boolean;
+  is_parked: boolean;
   breach_detected?: boolean;
 }
 
@@ -36,21 +31,35 @@ export function DataTable({ data }: DataTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead>ID</TableHead>
             <TableHead>Username</TableHead>
             <TableHead>Domain</TableHead>
-            <TableHead>IP</TableHead>
-            <TableHead>Application</TableHead>
+            <TableHead>Path</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Tags</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.map((entry) => (
-            <TableRow key={entry.id}>
+            <TableRow key={entry.id} className="group">
+              <TableCell className="font-mono text-xs">{entry.id}</TableCell>
               <TableCell>{entry.username}</TableCell>
-              <TableCell>{entry.domain}</TableCell>
-              <TableCell>{entry.ip_address || "N/A"}</TableCell>
-              <TableCell>{entry.application || "Unknown"}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-1">
+                  {entry.domain}
+                  <a
+                    href={`https://${entry.domain}${entry.url_path}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <ExternalLink className="h-3 w-3 text-muted-foreground hover:text-primary" />
+                  </a>
+                </div>
+              </TableCell>
+              <TableCell className="font-mono text-xs text-muted-foreground">
+                {entry.url_path}
+              </TableCell>
               <TableCell>
                 <StatusBadge 
                   status={
@@ -69,7 +78,7 @@ export function DataTable({ data }: DataTableProps) {
                   {entry.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="bg-secondary text-secondary-foreground px-2 py-1 rounded-full text-xs"
+                      className="bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full text-xs"
                     >
                       {tag}
                     </span>
