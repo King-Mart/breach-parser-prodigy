@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { Plane, Shield, Lock, Database } from "lucide-react";
 
-// Sample breach data
+// Sample breach data with proper formatting
 const sampleData = [
   {
     id: "728732",
@@ -588,9 +588,9 @@ export default function Index() {
     breach_detected: true
   }));
 
-  const { data = transformedSampleData, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['accounts'],
-    queryFn: fetchDatabaseRows,
+    queryFn: () => Promise.resolve(transformedSampleData), // Directly use the sample data
     initialData: transformedSampleData,
   });
 
