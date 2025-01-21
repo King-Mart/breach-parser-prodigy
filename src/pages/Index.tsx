@@ -578,7 +578,6 @@ export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
 
-  // Transform the sample data to match the DataTable interface
   const transformedSampleData = sampleData.map(entry => ({
     ...entry,
     tags: entry.tags || [],
@@ -608,44 +607,50 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-background bg-[url('/airplane-pattern.png')] bg-repeat bg-opacity-10">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-background relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute inset-0 bg-[url('/airplane-pattern.png')] bg-repeat opacity-5" />
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5" />
+      
+      {/* Animated gradient orbs */}
+      <div className="absolute top-20 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-secondary/10 rounded-full blur-3xl animate-pulse delay-1000" />
+      
       <div className="container py-8 space-y-8 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/50 to-background/80 pointer-events-none" />
-        
         <div className="relative space-y-8">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between backdrop-blur-sm rounded-lg p-6 bg-card/20 border border-primary/10 shadow-lg">
             <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Shield className="h-8 w-8 text-primary animate-pulse" />
-                <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50">
+              <div className="flex items-center gap-3">
+                <Shield className="h-10 w-10 text-primary animate-pulse" />
+                <h1 className="text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary via-primary/80 to-primary/60">
                   Breach Data Analyzer
                 </h1>
               </div>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground text-lg">
                 Navigate through breach data securely with our advanced analysis tools.
               </p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               <img 
                 src="/lovable-uploads/1abc1e8e-4752-421a-b217-232af70b0285.png" 
                 alt="TADA DATA Logo" 
-                className="h-8 w-auto object-contain opacity-80 hover:opacity-100 transition-opacity"
+                className="h-12 w-auto object-contain opacity-90 hover:opacity-100 transition-opacity"
               />
-              <Plane className="h-6 w-6 text-primary/80 floating-plane" />
+              <Plane className="h-8 w-8 text-primary/80 floating-plane" />
             </div>
           </div>
 
-          <div className="p-6 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg border border-border/50 hover:border-primary/20 transition-colors">
+          <div className="p-8 bg-card/30 backdrop-blur-md rounded-xl shadow-2xl border border-primary/10 hover:border-primary/20 transition-all duration-500">
             <UrlAnalyzer />
           </div>
 
           <div className="grid gap-8 md:grid-cols-2">
-            <div className="group p-6 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg border border-border/50 hover:border-primary/20 transition-all duration-300">
+            <div className="group p-8 bg-card/30 backdrop-blur-md rounded-xl shadow-2xl border border-primary/10 hover:border-primary/20 transition-all duration-500 hover:shadow-primary/5">
               <FileUpload />
             </div>
-            <div className="group p-6 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg border border-border/50 hover:border-primary/20 transition-all duration-300 space-y-4">
-              <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
-                <Lock className="h-5 w-5 text-primary group-hover:rotate-12 transition-transform" />
+            <div className="group p-8 bg-card/30 backdrop-blur-md rounded-xl shadow-2xl border border-primary/10 hover:border-primary/20 transition-all duration-500 hover:shadow-primary/5 space-y-4">
+              <h2 className="text-2xl font-semibold text-foreground flex items-center gap-3">
+                <Lock className="h-6 w-6 text-primary group-hover:rotate-12 transition-transform duration-500" />
                 Quick Search
               </h2>
               <SearchBar onSearch={handleSearch} />
@@ -653,14 +658,14 @@ export default function Index() {
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
-              <Shield className="h-5 w-5 text-primary" />
+            <h2 className="text-2xl font-semibold text-foreground flex items-center gap-3 px-2">
+              <Shield className="h-6 w-6 text-primary" />
               Breached Data Overview
             </h2>
-            <div className="bg-card/50 backdrop-blur-sm rounded-lg shadow-lg border border-border/50 hover:border-primary/20 transition-colors overflow-hidden">
+            <div className="bg-card/30 backdrop-blur-md rounded-xl shadow-2xl border border-primary/10 hover:border-primary/20 transition-all duration-500 overflow-hidden">
               {isLoading ? (
-                <div className="flex items-center justify-center p-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                <div className="flex items-center justify-center p-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
                 </div>
               ) : (
                 <DataTable data={data} />
