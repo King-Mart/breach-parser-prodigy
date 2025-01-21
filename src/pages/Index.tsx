@@ -10,7 +10,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { isSupabaseConfigured } from "@/lib/supabase";
 import { Plane, Shield, Lock, Database } from "lucide-react";
 
-// Sample breach data with proper formatting
 const sampleData = [
   {
     id: "728732",
@@ -590,7 +589,7 @@ export default function Index() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['accounts'],
-    queryFn: () => Promise.resolve(transformedSampleData), // Directly use the sample data
+    queryFn: () => Promise.resolve(transformedSampleData),
     initialData: transformedSampleData,
   });
 
@@ -635,15 +634,6 @@ export default function Index() {
               <Plane className="h-6 w-6 text-primary/80 floating-plane" />
             </div>
           </div>
-
-          {!isSupabaseConfigured() && (
-            <Alert variant="destructive" className="bg-destructive/10 border-destructive/20">
-              <AlertDescription className="flex items-center gap-2">
-                <Database className="h-4 w-4" />
-                Database connection not properly configured. Please set up your environment variables with valid Supabase credentials.
-              </AlertDescription>
-            </Alert>
-          )}
 
           <div className="p-6 bg-card/50 backdrop-blur-sm rounded-lg shadow-lg border border-border/50 hover:border-primary/20 transition-colors">
             <UrlAnalyzer />
