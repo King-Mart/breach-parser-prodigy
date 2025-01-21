@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Upload, Loader2 } from "lucide-react";
+import { Upload, Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Progress } from "@/components/ui/progress";
 import { uploadFile } from "@/api/database";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function FileUpload() {
   const [isUploading, setIsUploading] = useState(false);
@@ -54,6 +55,12 @@ export function FileUpload() {
 
   return (
     <div className="flex flex-col items-center gap-4 p-8 border-2 border-dashed rounded-lg">
+      <Alert variant="destructive" className="mb-4">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertDescription>
+          File upload functionality is currently under development. Check back soon!
+        </AlertDescription>
+      </Alert>
       {isUploading ? (
         <Loader2 className="h-10 w-10 text-muted-foreground animate-spin" />
       ) : (
